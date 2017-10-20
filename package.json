@@ -1,0 +1,32 @@
+{
+  "name": "project-2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NPH82/Project-2.git"
+  },
+  "author": "Nic Hoey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NPH82/Project-2/issues"
+  },
+  "homepage": "https://github.com/NPH82/Project-2#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "chai": "^4.1.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.1",
+    "firebase-admin": "^5.4.2",
+    "method-override": "^2.3.10",
+    "mocha": "^4.0.0",
+    "mysql": "^2.14.1",
+    "mysql2": "^1.4.2",
+    "path": "^0.12.7",
+    "sequelize": "^4.13.5"
+  }
+}

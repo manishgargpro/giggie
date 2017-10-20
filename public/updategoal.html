@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase.js"></script>
+  <script src="https://unpkg.com/vue"></script>
+  <title>Goal and Get It</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Goal and Get It</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li><a href="/">Home</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#">My Score<span class="badge" id="score">0</span></a></li>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="jumbotron">
+      <h1 class="newGoals">Update any part of your goal that you want</h1>
+      <form>
+        <div class="form-group">
+          <label for="goal">Rewrite Goal:</label>
+          <input type="text" class="form-control" id="goal-update">
+        </div>
+        <div id="app4" class="form-group">
+          <!-- <label for="difficulty">Reset Difficulty Level (select one):</label> -->
+          <select v-model="selected" class="form-control" id="difficulty-update">
+            <option disabled value="">Please select one</option>
+            <option value="1">1 (easy)</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5 (hard)</option>
+          </select>
+          <br>
+          <span>You selected a difficulty level of {{ selected }}.</span>
+          <br>
+          <button type="button" class="btn btn-warning" id="goalUpdate">Update Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="assets/javascript/fb.js"></script>
+  <script src="assets/javascript/app.js"></script>
+  <script src="assets/javascript/vue.js"></script>
+  
+</body>
+
+</html>
