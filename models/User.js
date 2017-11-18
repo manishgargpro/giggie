@@ -1,29 +1,29 @@
-module.exports = function(sequelize, DataTypes) {
-  var User = sequelize.define("User", {
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        len: [1]
-      }
-    },
-    points: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
-    firebaseId: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        len: [1]
-      }
-    }
-  });
-  User.associate = function (models) {
-    User.hasMany(models.Goal, {
-      onDelete: "cascade"
-    })
-  }
-  return User;
-};
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const UserSchema = new Schema({
+  firebaseId: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  joinedDate: {
+    type: Date,
+    default: Date.now
+  },
+  comments: [{
+    type: Schema.ObjectId,
+    ref: "Comment"
+  }],
+  gigs: [{
+    type: Schema.ObjectId,
+    ref: "Gig"
+  }]
+});
+
+const User = mongoose.model("User", UserSchema);
+
+module.exports = User;

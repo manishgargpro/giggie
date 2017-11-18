@@ -1,29 +1,26 @@
-var express = require("express");
-var bodyParser = require("body-parser");
-var cookieParser = require("cookie-parser");
-var path = require("path");
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const routes = require("./APIRoutes");
 
-var isAuthenticated = require("./config/middleware/isAuthenticated");
+const app = express();
+const PORT = process.env.PORT || 3001;
 
-var app = express();
-var PORT = process.env.PORT || 3000;
-
-var db = require("./models");
-
-app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.text());
-app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 
-app.use(express.static("public"));
+app.use(express.static("client/build"));
+app.use(routes);
 
-require("./routes/api-routes.js")(app);
-require("./routes/html-routes.js")(app);
+mongoose.Promise = global.Promise;
 
-db.sequelize.sync().then(function() {
-  console.log("Database synced")
-  app.listen(PORT, function() {
-    console.log("Listening on PORT " + PORT);
-  });
+mongoose.connect(
+  process.env.MONGODB_URI || "mongodb://localhost/giggie",
+  {
+    useMongoClient: true
+  }
+);
+
+app.listen(PORT, function() {
+  console.log(`Listening on PORT ${PORT}`);
 });
