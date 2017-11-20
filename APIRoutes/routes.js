@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const controller = require("../controllers/controller.js");
+const isAuthenticated = require("../config/middleware/isAuthenticated");
 
 router.route("/users")
   .post(controller.users.create);

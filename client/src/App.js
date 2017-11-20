@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Nav from './components/Nav'
+import Auth from "./components/Auth";
 import Home from './pages/Home'
 
 class App extends Component {
@@ -10,10 +10,11 @@ class App extends Component {
       <Router>
         <MuiThemeProvider>
           <div>
-            <Nav />
-            <Switch>
-              <Route exact path="/" component={Home} />
-            </Switch>
+            <Auth>
+              <Switch>
+                <Route exact path="/" component={Home} />
+              </Switch>
+            </Auth>
           </div>
         </MuiThemeProvider>
       </Router>

@@ -4,7 +4,9 @@ module.exports = {
   users: {
     findOne: function(req, res) {
       db.User
-        .findOne({_id: req.params.id})
+        .findOne({firebaseId: req.params.id})
+        .populate("gigs")
+        .populate("comments")
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     },
@@ -16,13 +18,13 @@ module.exports = {
     },
     update: function(req, res) {
       db.User
-        .update({_id: req.params.id}, req.body)
+        .update({firebaseId: req.params.id}, req.body)
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     },
     remove: function(req, res) {
       db.User
-        .findOne({_id: req.params.id})
+        .findOne({firebaseId: req.params.id})
         .then(dbUser => dbUser.remove())
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
@@ -44,7 +46,14 @@ module.exports = {
     create: function(req, res) {
       db.Gig
         .create(req.body)
-        .then(dbGig => res.json(dbGig))
+        .then(dbGig => {
+          return db.User.findOneAndUpdate(
+            {_id: req.body.authorId},
+            { $push: { gigs: dbGig._id } },
+            { new: true }
+          );
+        })
+        .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     },
     update: function(req, res) {
@@ -77,6 +86,13 @@ module.exports = {
     create: function(req, res) {
       db.Comment
         .create(req.body)
+        .then(dbComment => {
+          return db.User.findOneAndUpdate(
+            {_id: req.body.authorId},
+            { $push: { comments: dbComment._id } },
+            { new: true }
+          );
+        })
         .then(dbComment => res.json(dbComment))
         .catch(err => res.status(422).json(err));
     },
