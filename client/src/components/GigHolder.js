@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { GridList, GridTile } from 'material-ui/GridList';
+import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
+import RaisedButton from 'material-ui/RaisedButton';
 
 export default class GigHolder extends Component {
 
@@ -7,16 +8,30 @@ export default class GigHolder extends Component {
     const data = this.props.tilesData;
     if (data) {
       return (
-        <GridList>
-          {data.map((tile) => (
-            <GridTile
-              key={tile._id}
-              id={tile._id}
+        data.map((tile) => (
+          <Card
+            key={tile._id}
+            id={tile._id}
+          >
+            <CardHeader
               title={tile.title}
-              subtitle={this.props.subtitle}
+              subtitle={`Posted by ${this.props.subtitle}`}
+              actAsExpander={true}
+              showExpandableButton={true}
             />
-          ))}
-        </GridList>
+            <CardActions>
+              <RaisedButton
+                label="Delete"
+                onClick={() => {
+                  this.props.onClick(tile._id)
+                }}
+              />
+            </CardActions>
+            <CardText expandable={true}>
+              {tile.description}
+            </CardText>
+          </Card>
+        ))
       )
     }
   }

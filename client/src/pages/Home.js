@@ -14,7 +14,7 @@ class Home extends Component {
     console.log(nextProps)
     if (nextProps.currentUser) {
       API.getUser(nextProps.currentUser.uid).then(res => {
-        console.log(res.data._id)
+        console.log(res.data)
         this.setState({
           mongoUserObject: res.data
         })
@@ -85,7 +85,7 @@ class Home extends Component {
       [name]: value
     });
   }
-  
+
   handleOpen = () => {
     this.setState({ open: true });
   };
@@ -97,7 +97,7 @@ class Home extends Component {
       description: ""
     });
   };
-  
+
   handleGigSubmit = event => {
     event.preventDefault();
     API.createGig({
@@ -112,6 +112,27 @@ class Home extends Component {
       console.log(this.state)
       this.handleClose();
     })
+      .catch(err => {
+        this.setState({ error: err });
+        console.log(this.state.error)
+      });
+  }
+
+  handleDeleteGig = id => {
+    API.deleteGig(id).then(function (res) {
+      console.log(res.data);
+      API.getUser(this.props.currentUser.uid).then(res => {
+        console.log(res.data)
+        this.setState({
+          mongoUserObject: res.data
+        })
+        console.log(this.state)
+      })
+    })
+      .catch(err => {
+        this.setState({ error: err });
+        console.log(this.state.error)
+      });
   }
 
   render() {
@@ -153,7 +174,11 @@ class Home extends Component {
             </div>
           }
         />
-        <h1>{this.props.currentUser ? `Welcome, ${this.props.currentUser.email}!` : "Welcome!"}</h1>
+        <h1>{this.props.currentUser ?
+          `Welcome, ${this.props.currentUser.email}!`
+          :
+          "Welcome!"}
+        </h1>
         <GigCreate
           handleGigSubmit={this.handleGigSubmit}
           handleClose={this.handleClose}
@@ -164,11 +189,8 @@ class Home extends Component {
         />
         <GigHolder
           tilesData={this.state.mongoUserObject.gigs}
-          subtitle={
-            <RaisedButton
-              label="See Details"
-            />
-          }
+          subtitle={this.state.mongoUserObject.name}
+          onClick={this.handleDeleteGig}
         />
       </div>
     );
