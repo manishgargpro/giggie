@@ -29,7 +29,10 @@ class Home extends Component {
     email: "",
     password: "",
     error: {},
-    mongoUserObject: {}
+    mongoUserObject: {},
+    title: "",
+    description: "",
+    open: false
   }
 
   handleSignIn = event => {
@@ -82,6 +85,34 @@ class Home extends Component {
       [name]: value
     });
   }
+  
+  handleOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = () => {
+    this.setState({
+      open: false,
+      title: "",
+      description: ""
+    });
+  };
+  
+  handleGigSubmit = event => {
+    event.preventDefault();
+    API.createGig({
+      title: this.state.title,
+      description: this.state.description,
+      authorId: this.state.mongoUserObject._id
+    }).then(res => {
+      console.log(res.data)
+      this.setState({
+        mongoUserObject: res.data
+      })
+      console.log(this.state)
+      this.handleClose();
+    })
+  }
 
   render() {
     return (
@@ -89,9 +120,7 @@ class Home extends Component {
         <Nav
           iconElementRight={this.props.currentUser ?
             <div>
-              <GigCreate
-                authorId={this.state.mongoUserObject._id}
-              />
+              <RaisedButton label="Create a Gig" onClick={this.handleOpen} />
               <RaisedButton
                 label="Sign Out"
                 onClick={this.handleSignIn}
@@ -125,6 +154,14 @@ class Home extends Component {
           }
         />
         <h1>{this.props.currentUser ? `Welcome, ${this.props.currentUser.email}!` : "Welcome!"}</h1>
+        <GigCreate
+          handleGigSubmit={this.handleGigSubmit}
+          handleClose={this.handleClose}
+          handleInputChange={this.handleInputChange}
+          title={this.state.title}
+          description={this.state.description}
+          open={this.state.open}
+        />
         <GigHolder
           tilesData={this.state.mongoUserObject.gigs}
           subtitle={

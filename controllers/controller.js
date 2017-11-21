@@ -5,8 +5,22 @@ module.exports = {
     findOne: function(req, res) {
       db.User
         .findOne({firebaseId: req.params.id})
-        .populate("gigs")
-        .populate("comments")
+        .populate({
+          path: "gigs",
+          options: {
+            sort: {
+              date: -1
+            }
+          }
+        })
+        .populate({
+          path: "comments",
+          options: {
+            sort: {
+              date: -1
+            }
+          }
+        })
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     },

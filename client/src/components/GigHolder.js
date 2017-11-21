@@ -5,7 +5,6 @@ export default class GigHolder extends Component {
 
   renderList = () => {
     const data = this.props.tilesData;
-    console.log(data)
     if (data) {
       return (
         <GridList>

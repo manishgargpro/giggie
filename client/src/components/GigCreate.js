@@ -1,68 +1,29 @@
 import React, { Component } from 'react';
-import API from '../utils/API'
 import Dialog from 'material-ui/Dialog';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField'
 
 export default class GigCreate extends Component {
 
-  state = {
-    title: "",
-    description: "",
-    open: false
-  }
-
-  handleInputChange = event => {
-    const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    });
-  }
-
-  handleOpen = () => {
-    this.setState({ open: true });
-  };
-
-  handleClose = () => {
-    this.setState({
-      open: false,
-      title: "",
-      description: ""
-    });
-  };
-
-  handleGigSubmit = event => {
-    event.preventDefault();
-    API.createGig({
-      title: this.state.title,
-      description: this.state.description,
-      authorId: this.props.authorId
-    }).then(res => {
-      console.log(res.data)
-      this.handleClose();
-    })
-  }
-
   render() {
     const actions = [
       <RaisedButton
         label="Submit"
-        onClick={this.handleGigSubmit}
+        onClick={this.props.handleGigSubmit}
       />,
       <RaisedButton
         label="Cancel"
-        onClick={this.handleClose}
+        onClick={this.props.handleClose}
       />
     ]
 
     return (
       <div>
-        <RaisedButton label="Create a Gig" onClick={this.handleOpen} />
         <Dialog
           title="Gig Form"
           actions={actions}
-          open={this.state.open}
-          onRequestClose={this.handleClose}
+          open={this.props.open}
+          onRequestClose={this.props.handleClose}
           children={
             <div>
               Gig Title
@@ -70,8 +31,8 @@ export default class GigCreate extends Component {
               <TextField
                 name="title"
                 type="text"
-                value={this.state.title}
-                onChange={this.handleInputChange}
+                value={this.props.title}
+                onChange={this.props.handleInputChange}
               />
               <br />
               Gig Description
@@ -81,8 +42,8 @@ export default class GigCreate extends Component {
                 type="text"
                 multiLine={true}
                 rows={4}
-                value={this.state.description}
-                onChange={this.handleInputChange}
+                value={this.props.description}
+                onChange={this.props.handleInputChange}
               />
             </div>
           }
