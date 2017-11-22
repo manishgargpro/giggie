@@ -13,14 +13,6 @@ module.exports = {
             }
           }
         })
-        .populate({
-          path: "comments",
-          options: {
-            sort: {
-              date: -1
-            }
-          }
-        })
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     },
@@ -65,7 +57,15 @@ module.exports = {
             { _id: req.body.authorId },
             { $push: { gigs: dbGig._id } },
             { new: true }
-          );
+          )
+          .populate({
+            path: "gigs",
+            options: {
+              sort: {
+                date: -1
+              }
+            }
+          });
         })
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
@@ -80,7 +80,25 @@ module.exports = {
       db.Gig
         .findOne({ _id: req.params.id })
         .then(dbGig => dbGig.remove())
-        .then(dbGig => res.json(dbGig))
+        .then(dbGig => {
+          return db.User.findOneAndUpdate(
+            { _id: req.params.authorId },
+            { $pull: { gigs: dbGig._id } },
+            { new: true }
+          )
+          .populate({
+            path: "gigs",
+            options: {
+              sort: {
+                date: -1
+              }
+            }
+          });
+        })
+        .then(dbUser => {
+          console.log(dbUser)
+          res.json(dbUser)
+        })
         .catch(err => res.status(422).json(err));
     }
   },

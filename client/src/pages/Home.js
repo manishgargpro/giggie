@@ -10,6 +10,9 @@ import withAuth from "../components/HOC/withAuth";
 
 class Home extends Component {
 
+  componentDidMount() {
+  }
+
   componentWillReceiveProps(nextProps) {
     console.log(nextProps)
     if (nextProps.currentUser) {
@@ -29,7 +32,7 @@ class Home extends Component {
     email: "",
     password: "",
     error: {},
-    mongoUserObject: {},
+    mongoUserObject: null,
     title: "",
     description: "",
     open: false
@@ -44,7 +47,7 @@ class Home extends Component {
           this.setState({
             email: "",
             password: "",
-            mongoUserObject: {}
+            mongoUserObject: null
           })
         });
     } else {
@@ -85,7 +88,7 @@ class Home extends Component {
       [name]: value
     });
   }
-
+  
   handleOpen = () => {
     this.setState({ open: true });
   };
@@ -97,7 +100,7 @@ class Home extends Component {
       description: ""
     });
   };
-
+  
   handleGigSubmit = event => {
     event.preventDefault();
     API.createGig({
@@ -112,27 +115,23 @@ class Home extends Component {
       console.log(this.state)
       this.handleClose();
     })
-      .catch(err => {
-        this.setState({ error: err });
-        console.log(this.state.error)
-      });
+    .catch(err => {
+      console.log(err)
+    });
   }
 
   handleDeleteGig = id => {
-    API.deleteGig(id).then(function (res) {
-      console.log(res.data);
-      API.getUser(this.props.currentUser.uid).then(res => {
-        console.log(res.data)
-        this.setState({
-          mongoUserObject: res.data
-        })
-        console.log(this.state)
-      })
-    })
-      .catch(err => {
-        this.setState({ error: err });
-        console.log(this.state.error)
+    API.deleteGig(id, this.state.mongoUserObject._id)
+    .then(res => {
+      console.log(res.data)
+      console.log(this)
+      this.setState({
+        mongoUserObject: res.data
       });
+    })
+    .catch(err => {
+      console.log(err)
+    });
   }
 
   render() {
@@ -174,8 +173,8 @@ class Home extends Component {
             </div>
           }
         />
-        <h1>{this.props.currentUser ?
-          `Welcome, ${this.props.currentUser.email}!`
+        <h1>{this.state.mongoUserObject ? 
+          `Welcome, ${this.state.mongoUserObject.name}!`
           :
           "Welcome!"}
         </h1>
@@ -187,11 +186,12 @@ class Home extends Component {
           description={this.state.description}
           open={this.state.open}
         />
-        <GigHolder
-          tilesData={this.state.mongoUserObject.gigs}
+        {this.state.mongoUserObject && <GigHolder
+          gigs={this.state.mongoUserObject.gigs}
           subtitle={this.state.mongoUserObject.name}
           onClick={this.handleDeleteGig}
         />
+        }
       </div>
     );
   }
