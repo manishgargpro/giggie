@@ -95,10 +95,7 @@ module.exports = {
             }
           });
         })
-        .then(dbUser => {
-          console.log(dbUser)
-          res.json(dbUser)
-        })
+        .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     }
   },
@@ -125,7 +122,7 @@ module.exports = {
             { new: true }
           );
         })
-        .then(dbComment => res.json(dbComment))
+        .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     },
     update: function (req, res) {

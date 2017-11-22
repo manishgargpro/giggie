@@ -188,7 +188,8 @@ class Home extends Component {
         />
         {this.state.mongoUserObject && <GigHolder
           gigs={this.state.mongoUserObject.gigs}
-          subtitle={this.state.mongoUserObject.name}
+          loggedInId={this.state.mongoUserObject._id}
+          name={this.state.mongoUserObject.name}
           onClick={this.handleDeleteGig}
         />
         }

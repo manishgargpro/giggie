@@ -14,7 +14,11 @@ export default class GigHolder extends Component {
         >
           <CardHeader
             title={tile.title}
-            subtitle={`Posted by ${this.props.subtitle}`}
+            subtitle={
+              this.props.loggedInId === tile.authorId ?
+              "Posted by You" :
+              `Posted by ${this.props.name}`
+            }
             actAsExpander={true}
             showExpandableButton={true}
           />
