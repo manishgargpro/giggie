@@ -133,8 +133,13 @@ class Home extends Component {
       });
   }
 
-  handleDeleteGig = id => {
-    API.deleteGig(id, this.state.mongoUserObject._id)
+  handleDeleteGig = (id, workerId) => {
+    console.log(workerId)
+    API.deleteGig({
+      id: id,
+      authorId: this.state.mongoUserObject._id,
+      workerId: workerId
+    })
       .then(res => {
         this.setState({
           mongoUserObject: res.data

@@ -31,11 +31,7 @@ export default class GigHolder extends Component {
               label={tile.authorId.name ? (
                 this.props.loggedInId === tile.authorId._id ?
                   "Delete" :
-                  (
-                    this.props.loggedInId === tile.workerId ?
-                      "Cancel" :
-                      "Accept"
-                  )
+                  "Accept"
               ) : (
                 this.props.loggedInId === tile.authorId ?
                   "Delete" :
@@ -45,21 +41,15 @@ export default class GigHolder extends Component {
               onClick={tile.authorId.name ? (
                 this.props.loggedInId === tile.authorId._id ?
                   () => {
-                    this.props.deleteFunction(tile._id)
+                    this.props.deleteFunction(tile._id, tile.workerId)
                   } :
-                  (
-                    this.props.loggedInId === tile.workerId ?
-                      () => {
-                        this.props.acceptFunction(tile._id, false)
-                      } :
-                      () => {
-                        this.props.acceptFunction(tile._id, true)
-                      }
-                  )
+                  () => {
+                    this.props.acceptFunction(tile._id, true)
+                  }
               ) : (
                 this.props.loggedInId === tile.authorId ?
                   () => {
-                    this.props.deleteFunction(tile._id)
+                    this.props.deleteFunction(tile._id, tile.workerId)
                   } :
                   () => {
                     this.props.acceptFunction(tile._id, false)

@@ -34,8 +34,12 @@ export default {
     return axios.put("/api/gigs", req);
   },
 
-  deleteGig: function(id, authorId) {
-    return axios.delete("/api/gigs/" + id + "/" + authorId);
+  deleteGig: function(req) {
+    return axios({
+      method: "DELETE",
+      url: "/api/gigs", 
+      data: req
+    });
   },
 
   getAllComments: function() {

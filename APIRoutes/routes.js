@@ -13,11 +13,11 @@ router.route("/users/:id")
 router.route("/gigs")
   .get(controller.gigs.findAll)
   .put(controller.gigs.update)
-  .post(controller.gigs.create);
+  .post(controller.gigs.create)
+  .delete(controller.gigs.remove);
 
 router.route("/gigs/:id/:authorId")
-  .get(controller.gigs.findOne)
-  .delete(controller.gigs.remove);
+  .get(controller.gigs.findOne);
 
 router.route("/comments")
   .get(controller.comments.findAll)

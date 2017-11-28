@@ -39,7 +39,9 @@ module.exports = {
   gigs: {
     findAll: function (req, res) {
       db.Gig
-        .find(req.body)
+        .find({
+          workerId: null
+        })
         .populate("authorId")
         .then(dbGig => res.json(dbGig))
         .catch(err => res.status(422).json(err));
@@ -106,8 +108,6 @@ module.exports = {
           $set: {workerId: undefined}
         })
         .then(dbGig => {
-          console.log("");
-          console.log(dbGig)
           return db.User.findOneAndUpdate(
             { _id: req.body.workerId },
             { $pull: { gigs: req.body.id } },
@@ -122,32 +122,35 @@ module.exports = {
             }
           });
         })
-        .then(dbUser => {
-          console.log("")
-          console.log(dbUser)
-          res.json(dbUser)
-        })
+        .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
       }
     },
     remove: function (req, res) {
       db.Gig
-        .findOne({ _id: req.params.id })
+        .findOne({ _id: req.body.id })
         .then(dbGig => dbGig.remove())
         .then(dbGig => {
           return db.User.findOneAndUpdate(
-            { _id: req.params.authorId },
-            { $pull: { gigs: dbGig._id } },
+            { _id: dbGig.workerId },
+            { $pull: { gigs: req.body.id } },
             { new: true }
           )
-          .populate({
-            path: "gigs",
-            options: {
-              sort: {
-                date: -1
+          .then(dbUser => {
+            return db.User.findOneAndUpdate(
+              { _id: req.body.authorId },
+              { $pull: { gigs: req.body.id } },
+              { new: true }
+            )
+            .populate({
+              path: "gigs",
+              options: {
+                sort: {
+                  date: -1
+                }
               }
-            }
-          });
+            });
+          })          
         })
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
