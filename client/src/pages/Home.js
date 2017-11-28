@@ -5,6 +5,7 @@ import GigHolder from '../components/GigHolder'
 import API from '../utils/API'
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton';
+import { Tabs, Tab } from 'material-ui/Tabs';
 import withAuth from "../components/HOC/withAuth";
 
 
@@ -21,6 +22,7 @@ class Home extends Component {
         this.setState({
           mongoUserObject: res.data
         })
+        this.getGigs();
         console.log(this.state)
       })
     } else {
@@ -33,9 +35,19 @@ class Home extends Component {
     password: "",
     error: {},
     mongoUserObject: null,
+    allGigs: [],
     title: "",
     description: "",
     open: false
+  }
+
+  getGigs = () => {
+    API.getAllGigs().then(res => {
+      this.setState({
+        allGigs: res.data
+      });
+      console.log(this.state);
+    })
   }
 
   handleSignIn = event => {
@@ -88,7 +100,7 @@ class Home extends Component {
       [name]: value
     });
   }
-  
+
   handleOpen = () => {
     this.setState({ open: true });
   };
@@ -100,7 +112,7 @@ class Home extends Component {
       description: ""
     });
   };
-  
+
   handleGigSubmit = event => {
     event.preventDefault();
     API.createGig({
@@ -113,25 +125,42 @@ class Home extends Component {
         mongoUserObject: res.data
       })
       console.log(this.state)
+      this.getGigs();
       this.handleClose();
     })
-    .catch(err => {
-      console.log(err)
-    });
+      .catch(err => {
+        console.log(err)
+      });
   }
 
   handleDeleteGig = id => {
     API.deleteGig(id, this.state.mongoUserObject._id)
-    .then(res => {
-      console.log(res.data)
-      console.log(this)
-      this.setState({
-        mongoUserObject: res.data
+      .then(res => {
+        this.setState({
+          mongoUserObject: res.data
+        });
+        this.getGigs();
+      })
+      .catch(err => {
+        console.log(err)
       });
+  }
+
+  handleAcceptGig = (id, accept) => {
+    API.updateGig({
+      id: id,
+      workerId: this.state.mongoUserObject._id,
+      accept: accept
     })
-    .catch(err => {
-      console.log(err)
-    });
+      .then(res => {
+        this.setState({
+          mongoUserObject: res.data
+        });
+        this.getGigs();
+      })
+      .catch(err => {
+        console.log(err)
+      });
   }
 
   render() {
@@ -173,25 +202,46 @@ class Home extends Component {
             </div>
           }
         />
-        <h1>{this.state.mongoUserObject ? 
+        <h1>{this.state.mongoUserObject ?
           `Welcome, ${this.state.mongoUserObject.name}!`
           :
-          "Welcome!"}
+          "Welcome! Please log in or create an account to get started!"}
         </h1>
-        <GigCreate
-          handleGigSubmit={this.handleGigSubmit}
-          handleClose={this.handleClose}
-          handleInputChange={this.handleInputChange}
-          title={this.state.title}
-          description={this.state.description}
-          open={this.state.open}
-        />
-        {this.state.mongoUserObject && <GigHolder
-          gigs={this.state.mongoUserObject.gigs}
-          loggedInId={this.state.mongoUserObject._id}
-          name={this.state.mongoUserObject.name}
-          onClick={this.handleDeleteGig}
-        />
+        {this.state.mongoUserObject &&
+          <Tabs>
+            <Tab label="Your Gigs" >
+              <GigHolder
+                gigs={this.state.mongoUserObject.gigs}
+                loggedInId={this.state.mongoUserObject._id}
+                deleteFunction={this.handleDeleteGig}
+                acceptFunction={this.handleAcceptGig}
+              />
+              <GigCreate
+                handleGigSubmit={this.handleGigSubmit}
+                handleClose={this.handleClose}
+                handleInputChange={this.handleInputChange}
+                title={this.state.title}
+                description={this.state.description}
+                open={this.state.open}
+              />
+            </Tab>
+            <Tab label="All Gigs" >
+              <GigHolder
+                gigs={this.state.allGigs}
+                loggedInId={this.state.mongoUserObject._id}
+                deleteFunction={this.handleDeleteGig}
+                acceptFunction={this.handleAcceptGig}
+              />
+              <GigCreate
+                handleGigSubmit={this.handleGigSubmit}
+                handleClose={this.handleClose}
+                handleInputChange={this.handleInputChange}
+                title={this.state.title}
+                description={this.state.description}
+                open={this.state.open}
+              />
+            </Tab>
+          </Tabs>
         }
       </div>
     );

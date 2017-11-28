@@ -40,6 +40,7 @@ module.exports = {
     findAll: function (req, res) {
       db.Gig
         .find(req.body)
+        .populate("authorId")
         .then(dbGig => res.json(dbGig))
         .catch(err => res.status(422).json(err));
     },
@@ -71,10 +72,63 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     update: function (req, res) {
-      db.Gig
-        .update({ _id: req.params.id }, req.body)
-        .then(dbGig => res.json(dbGig))
+      if (req.body.accept) {
+        db.Gig
+        .update({
+          _id: req.body.id
+        }, {
+          $set: {workerId: req.body.workerId}
+        })
+        .then(dbGig => {
+          return db.User.findOneAndUpdate(
+            { _id: req.body.workerId },
+            { $push: { gigs: req.body.id } },
+            { new: true }
+          )
+          .populate({
+            path: "gigs",
+            options: {
+              sort: {
+                date: -1
+              }
+            }
+          });
+        })
+        .then(dbUser => {
+          res.json(dbUser)
+        })
         .catch(err => res.status(422).json(err));
+      } else {
+        db.Gig
+        .update({
+          _id: req.body.id
+        }, {
+          $set: {workerId: undefined}
+        })
+        .then(dbGig => {
+          console.log("");
+          console.log(dbGig)
+          return db.User.findOneAndUpdate(
+            { _id: req.body.workerId },
+            { $pull: { gigs: req.body.id } },
+            { new: true }
+          )
+          .populate({
+            path: "gigs",
+            options: {
+              sort: {
+                date: -1
+              }
+            }
+          });
+        })
+        .then(dbUser => {
+          console.log("")
+          console.log(dbUser)
+          res.json(dbUser)
+        })
+        .catch(err => res.status(422).json(err));
+      }
     },
     remove: function (req, res) {
       db.Gig

@@ -14,25 +14,60 @@ export default class GigHolder extends Component {
         >
           <CardHeader
             title={tile.title}
-            subtitle={
-              this.props.loggedInId === tile.authorId ?
-              "Posted by You" :
-              `Posted by ${this.props.name}`
+            subtitle={tile.authorId.name && (
+              this.props.loggedInId === tile.authorId._id ?
+                "Posted by You" :
+                `Posted by ${tile.authorId.name}`
+            )
             }
             actAsExpander={true}
             showExpandableButton={true}
           />
-          <CardActions>
-            <RaisedButton
-              label="Delete"
-              onClick={() => {
-                this.props.onClick(tile._id)
-              }}
-            />
-          </CardActions>
           <CardText expandable={true}>
             {tile.description}
           </CardText>
+          <CardActions>
+            <RaisedButton
+              label={tile.authorId.name ? (
+                this.props.loggedInId === tile.authorId._id ?
+                  "Delete" :
+                  (
+                    this.props.loggedInId === tile.workerId ?
+                      "Cancel" :
+                      "Accept"
+                  )
+              ) : (
+                this.props.loggedInId === tile.authorId ?
+                  "Delete" :
+                  "Cancel"
+              )
+              }
+              onClick={tile.authorId.name ? (
+                this.props.loggedInId === tile.authorId._id ?
+                  () => {
+                    this.props.deleteFunction(tile._id)
+                  } :
+                  (
+                    this.props.loggedInId === tile.workerId ?
+                      () => {
+                        this.props.acceptFunction(tile._id, false)
+                      } :
+                      () => {
+                        this.props.acceptFunction(tile._id, true)
+                      }
+                  )
+              ) : (
+                this.props.loggedInId === tile.authorId ?
+                  () => {
+                    this.props.deleteFunction(tile._id)
+                  } :
+                  () => {
+                    this.props.acceptFunction(tile._id, false)
+                  }
+              )
+              }
+            />
+          </CardActions>
         </Card>
       ))
     )

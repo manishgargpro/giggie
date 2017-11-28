@@ -30,8 +30,8 @@ export default {
     return axios.post("/api/gigs", req);
   },
 
-  updateGig: function(id, req) {
-    return axios.put("/api/gigs/" + id, req);
+  updateGig: function(req) {
+    return axios.put("/api/gigs", req);
   },
 
   deleteGig: function(id, authorId) {

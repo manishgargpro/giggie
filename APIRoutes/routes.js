@@ -12,11 +12,11 @@ router.route("/users/:id")
 
 router.route("/gigs")
   .get(controller.gigs.findAll)
+  .put(controller.gigs.update)
   .post(controller.gigs.create);
 
 router.route("/gigs/:id/:authorId")
   .get(controller.gigs.findOne)
-  .put(controller.gigs.update)
   .delete(controller.gigs.remove);
 
 router.route("/comments")
