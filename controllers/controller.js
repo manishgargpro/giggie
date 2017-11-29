@@ -7,9 +7,25 @@ module.exports = {
         .findOne({ firebaseId: req.params.id })
         .populate({
           path: "gigs",
+          populate: [
+            {
+              path: "authorId"
+            },
+            {
+              path: "comments",
+              populate: {
+                path: "commentorId"
+              },
+              options: {
+                sort: {
+                  date: 1
+                }
+              }
+            }
+          ],
           options: {
             sort: {
-              date: -1
+              createdDate: -1
             }
           }
         })
@@ -43,6 +59,20 @@ module.exports = {
           workerId: null
         })
         .populate("authorId")
+        .populate({
+          path: "comments",
+          populate: {
+            path: "commentorId"
+          },
+          options: {
+            sort: {
+              date: 1
+            }
+          }
+        })
+        .sort({
+          createdDate: -1
+        })
         .then(dbGig => res.json(dbGig))
         .catch(err => res.status(422).json(err));
     },
@@ -63,9 +93,25 @@ module.exports = {
           )
           .populate({
             path: "gigs",
+            populate: [
+              {
+                path: "authorId"
+              },
+              {
+                path: "comments",
+                populate: {
+                  path: "commentorId"
+                },
+                options: {
+                  sort: {
+                    date: 1
+                  }
+                }
+              }
+            ],
             options: {
               sort: {
-                date: -1
+                createdDate: -1
               }
             }
           });
@@ -89,9 +135,25 @@ module.exports = {
           )
           .populate({
             path: "gigs",
+            populate: [
+              {
+                path: "authorId"
+              },
+              {
+                path: "comments",
+                populate: {
+                  path: "commentorId"
+                },
+                options: {
+                  sort: {
+                    date: 1
+                  }
+                }
+              }
+            ],
             options: {
               sort: {
-                date: -1
+                createdDate: -1
               }
             }
           });
@@ -115,9 +177,25 @@ module.exports = {
           )
           .populate({
             path: "gigs",
+            populate: [
+              {
+                path: "authorId"
+              },
+              {
+                path: "comments",
+                populate: {
+                  path: "commentorId"
+                },
+                options: {
+                  sort: {
+                    date: 1
+                  }
+                }
+              }
+            ],
             options: {
               sort: {
-                date: -1
+                createdDate: -1
               }
             }
           });
@@ -144,9 +222,25 @@ module.exports = {
             )
             .populate({
               path: "gigs",
+              populate: [
+                {
+                  path: "authorId"
+                },
+                {
+                  path: "comments",
+                  populate: {
+                    path: "commentorId"
+                  },
+                  options: {
+                    sort: {
+                      date: 1
+                    }
+                  }
+                }
+              ],
               options: {
                 sort: {
-                  date: -1
+                  createdDate: -1
                 }
               }
             });
@@ -173,11 +267,39 @@ module.exports = {
       db.Comment
         .create(req.body)
         .then(dbComment => {
-          return db.User.findOneAndUpdate(
-            { _id: req.body.authorId },
+          return db.Gig.findOneAndUpdate(
+            { _id: req.body.gigId },
             { $push: { comments: dbComment._id } },
             { new: true }
-          );
+          )
+          .then(dbGig =>{
+            return db.User
+            .findOne({ firebaseId: req.user.id })
+            .populate({
+              path: "gigs",
+              populate: [
+                {
+                  path: "authorId"
+                },
+                {
+                  path: "comments",
+                  populate: {
+                    path: "commentorId"
+                  },
+                  options: {
+                    sort: {
+                      date: 1
+                    }
+                  }
+                }
+              ],
+              options: {
+                sort: {
+                  createdDate: -1
+                }
+              }
+            })
+          });
         })
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));

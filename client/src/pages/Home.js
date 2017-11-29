@@ -11,9 +11,6 @@ import withAuth from "../components/HOC/withAuth";
 
 class Home extends Component {
 
-  componentDidMount() {
-  }
-
   componentWillReceiveProps(nextProps) {
     console.log(nextProps)
     if (nextProps.currentUser) {
@@ -115,22 +112,32 @@ class Home extends Component {
 
   handleGigSubmit = event => {
     event.preventDefault();
-    API.createGig({
-      title: this.state.title,
-      description: this.state.description,
-      authorId: this.state.mongoUserObject._id
-    }).then(res => {
-      console.log(res.data)
-      this.setState({
-        mongoUserObject: res.data
+    if (this.state.title !== "" && this.state.description !== "") {
+      API.createGig({
+        title: this.state.title,
+        description: this.state.description,
+        authorId: this.state.mongoUserObject._id
+      }).then(res => {
+        console.log(res.data)
+        this.setState({
+          mongoUserObject: res.data,
+          title: "",
+          description: ""
+        })
+        this.getGigs();
+        this.handleClose();
+        console.log(this.state)
       })
-      console.log(this.state)
-      this.getGigs();
-      this.handleClose();
-    })
       .catch(err => {
         console.log(err)
       });
+    } else {
+      this.setState({
+        error: {
+          message: "One or more fields is blank, please try again."
+        }
+      })
+    }
   }
 
   handleDeleteGig = (id, workerId) => {
@@ -145,6 +152,7 @@ class Home extends Component {
           mongoUserObject: res.data
         });
         this.getGigs();
+        console.log(this.state)
       })
       .catch(err => {
         console.log(err)
@@ -162,10 +170,38 @@ class Home extends Component {
           mongoUserObject: res.data
         });
         this.getGigs();
+        console.log(this.state)
       })
       .catch(err => {
         console.log(err)
       });
+  }
+
+  handleCommentSubmit = id => {
+    if (this.state.text !== "") {
+      API.createComment({
+        text: this.state.text,
+        commentorId: this.state.mongoUserObject._id,
+        gigId: id
+      }).then(res => {
+        console.log(res.data)
+        this.setState({
+          mongoUserObject: res.data,
+          text: ""
+        });
+        this.getGigs();
+        console.log(this.state)
+      })
+      .catch(err => {
+        console.log(err)
+      });
+    } else {
+      this.setState({
+        error: {
+          message: "One or more fields is blank, please try again."
+        }
+      })
+    }
   }
 
   render() {
@@ -213,40 +249,41 @@ class Home extends Component {
           "Welcome! Please log in or create an account to get started!"}
         </h1>
         {this.state.mongoUserObject &&
-          <Tabs>
-            <Tab label="Your Gigs" >
-              <GigHolder
-                gigs={this.state.mongoUserObject.gigs}
-                loggedInId={this.state.mongoUserObject._id}
-                deleteFunction={this.handleDeleteGig}
-                acceptFunction={this.handleAcceptGig}
-              />
-              <GigCreate
-                handleGigSubmit={this.handleGigSubmit}
-                handleClose={this.handleClose}
-                handleInputChange={this.handleInputChange}
-                title={this.state.title}
-                description={this.state.description}
-                open={this.state.open}
-              />
-            </Tab>
-            <Tab label="All Gigs" >
-              <GigHolder
-                gigs={this.state.allGigs}
-                loggedInId={this.state.mongoUserObject._id}
-                deleteFunction={this.handleDeleteGig}
-                acceptFunction={this.handleAcceptGig}
-              />
-              <GigCreate
-                handleGigSubmit={this.handleGigSubmit}
-                handleClose={this.handleClose}
-                handleInputChange={this.handleInputChange}
-                title={this.state.title}
-                description={this.state.description}
-                open={this.state.open}
-              />
-            </Tab>
-          </Tabs>
+          <div>
+            <Tabs>
+              <Tab label="Your Gigs" >
+                <GigHolder
+                  gigs={this.state.mongoUserObject.gigs}
+                  loggedInId={this.state.mongoUserObject._id}
+                  text={this.state.text}
+                  handleInputChange={this.handleInputChange}
+                  deleteFunction={this.handleDeleteGig}
+                  acceptFunction={this.handleAcceptGig}
+                  leaveComment={this.handleCommentSubmit}
+                />
+              </Tab>
+              <Tab label="All Gigs" >
+                <GigHolder
+                  gigs={this.state.allGigs}
+                  loggedInId={this.state.mongoUserObject._id}
+                  text={this.state.text}
+                  handleInputChange={this.handleInputChange}
+                  deleteFunction={this.handleDeleteGig}
+                  acceptFunction={this.handleAcceptGig}
+                  leaveComment={this.handleCommentSubmit}
+                />
+              </Tab>
+            </Tabs>
+            <GigCreate
+              handleGigSubmit={this.handleGigSubmit}
+              handleClose={this.handleClose}
+              handleInputChange={this.handleInputChange}
+              title={this.state.title}
+              description={this.state.description}
+              open={this.state.open}
+              message={this.state.error.message}
+            />
+          </div>
         }
       </div>
     );

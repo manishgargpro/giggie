@@ -1,10 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser")
 const mongoose = require("mongoose");
 const routes = require("./APIRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

@@ -6,26 +6,26 @@ router.route("/users")
   .post(controller.users.create);
 
 router.route("/users/:id")
-  .get(controller.users.findOne)
-  .put(controller.users.update)
-  .delete(controller.users.remove);
+  .get(isAuthenticated, controller.users.findOne)
+  .put(isAuthenticated, controller.users.update)
+  .delete(isAuthenticated, controller.users.remove);
 
 router.route("/gigs")
-  .get(controller.gigs.findAll)
-  .put(controller.gigs.update)
-  .post(controller.gigs.create)
-  .delete(controller.gigs.remove);
+  .get(isAuthenticated, controller.gigs.findAll)
+  .put(isAuthenticated, controller.gigs.update)
+  .post(isAuthenticated, controller.gigs.create)
+  .delete(isAuthenticated, controller.gigs.remove);
 
 router.route("/gigs/:id/:authorId")
-  .get(controller.gigs.findOne);
+  .get(isAuthenticated, controller.gigs.findOne);
 
 router.route("/comments")
-  .get(controller.comments.findAll)
-  .post(controller.comments.create);
+  .get(isAuthenticated, controller.comments.findAll)
+  .post(isAuthenticated, controller.comments.create);
 
 router.route("/comments/:id")
-  .get(controller.comments.findOne)
-  .put(controller.comments.update)
-  .delete(controller.comments.remove);
+  .get(isAuthenticated, controller.comments.findOne)
+  .put(isAuthenticated, controller.comments.update)
+  .delete(isAuthenticated, controller.comments.remove);
 
 module.exports = router;

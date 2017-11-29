@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
+import TextField from 'material-ui/TextField'
 
 export default class GigHolder extends Component {
 
@@ -14,31 +15,63 @@ export default class GigHolder extends Component {
         >
           <CardHeader
             title={tile.title}
-            subtitle={tile.authorId.name && (
-              this.props.loggedInId === tile.authorId._id ?
+            subtitle={this.props.loggedInId === tile.authorId._id ?
                 "Posted by You" :
                 `Posted by ${tile.authorId.name}`
-            )
             }
             actAsExpander={true}
             showExpandableButton={true}
           />
           <CardText expandable={true}>
             {tile.description}
+            <Card>
+              <CardHeader
+                title="Comments"
+                actAsExpander={true}
+                showExpandableButton={true}
+              />
+              <CardText expandable={true}>
+                <ul>
+                  {tile.comments.map(comment => (
+                    <li key={comment._id}>
+                      Text: {comment.text}
+                      <br/>
+                      Author: {comment.commentorId.name}
+                    </li>
+                  ))}
+                </ul>
+                <CardActions>
+                  <TextField
+                    name="text"
+                    type="text"
+                    multiLine={true}
+                    rows={1}
+                    value={this.props.text}
+                    onChange={this.props.handleInputChange}
+                  />
+                  <RaisedButton
+                    label="Leave a Comment"
+                    onClick={() => {
+                      this.props.leaveComment(tile._id)
+                    }}
+                  />
+                </CardActions>
+              </CardText>
+            </Card>
           </CardText>
           <CardActions>
             <RaisedButton
-              label={tile.authorId.name ? (
+              label={!tile.workerId ? (
                 this.props.loggedInId === tile.authorId._id ?
                   "Delete" :
                   "Accept"
               ) : (
-                this.props.loggedInId === tile.authorId ?
+                this.props.loggedInId === tile.authorId._id ?
                   "Delete" :
                   "Cancel"
               )
               }
-              onClick={tile.authorId.name ? (
+              onClick={!tile.workerId ? (
                 this.props.loggedInId === tile.authorId._id ?
                   () => {
                     this.props.deleteFunction(tile._id, tile.workerId)
@@ -47,7 +80,7 @@ export default class GigHolder extends Component {
                     this.props.acceptFunction(tile._id, true)
                   }
               ) : (
-                this.props.loggedInId === tile.authorId ?
+                this.props.loggedInId === tile.authorId._id ?
                   () => {
                     this.props.deleteFunction(tile._id, tile.workerId)
                   } :

@@ -44,4 +44,6 @@ function setToken(user) {
   }
 }
 
+auth.onAuthStateChanged(setToken);
+
 export default auth;

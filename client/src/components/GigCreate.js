@@ -26,6 +26,8 @@ export default class GigCreate extends Component {
           onRequestClose={this.props.handleClose}
           children={
             <div>
+              {this.props.message}
+              <br/>
               Gig Title
               <br />
               <TextField
