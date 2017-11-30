@@ -21,11 +21,11 @@ router.route("/gigs/:id/:authorId")
 
 router.route("/comments")
   .get(isAuthenticated, controller.comments.findAll)
-  .post(isAuthenticated, controller.comments.create);
+  .post(isAuthenticated, controller.comments.create)
+  .delete(isAuthenticated, controller.comments.remove);
 
 router.route("/comments/:id")
   .get(isAuthenticated, controller.comments.findOne)
-  .put(isAuthenticated, controller.comments.update)
-  .delete(isAuthenticated, controller.comments.remove);
+  .put(isAuthenticated, controller.comments.update);
 
 module.exports = router;

@@ -206,11 +206,10 @@ module.exports = {
     },
     remove: function (req, res) {
       db.Gig
-        .findOne({ _id: req.body.id })
-        .then(dbGig => dbGig.remove())
+        .findOneAndRemove({ _id: req.body.id })
         .then(dbGig => {
           return db.User.findOneAndUpdate(
-            { _id: dbGig.workerId },
+            { _id: req.body.workerId },
             { $pull: { gigs: req.body.id } },
             { new: true }
           )
@@ -312,9 +311,43 @@ module.exports = {
     },
     remove: function (req, res) {
       db.Comment
-        .findOne({ _id: req.params.id })
-        .then(dbComment => dbComment.remove())
-        .then(dbComment => res.json(dbComment))
+        .findOneAndRemove({ _id: req.body.id })
+        .then(dbComment => {
+          return db.Gig.findOneAndUpdate(
+            { _id: req.body.gigId },
+            { $pull: { comments: req.body.id } },
+            { new: true }
+          )
+          .then(dbGig =>{
+            return db.User
+            .findOne({ firebaseId: req.user.id })
+            .populate({
+              path: "gigs",
+              populate: [
+                {
+                  path: "authorId"
+                },
+                {
+                  path: "comments",
+                  populate: {
+                    path: "commentorId"
+                  },
+                  options: {
+                    sort: {
+                      date: 1
+                    }
+                  }
+                }
+              ],
+              options: {
+                sort: {
+                  createdDate: -1
+                }
+              }
+            })
+          })
+        })
+        .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
     }
   }

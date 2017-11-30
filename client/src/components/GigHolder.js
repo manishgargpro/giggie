@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField'
+import {List, ListItem} from 'material-ui/List';
 
 export default class GigHolder extends Component {
 
@@ -31,15 +32,25 @@ export default class GigHolder extends Component {
                 showExpandableButton={true}
               />
               <CardText expandable={true}>
-                <ul>
+                <List>
                   {tile.comments.map(comment => (
-                    <li key={comment._id}>
-                      Text: {comment.text}
-                      <br/>
-                      Author: {comment.commentorId.name}
-                    </li>
+                    <ListItem
+                      key={comment._id}
+                      primaryText={comment.text}
+                      secondaryText={`Author: ${comment.commentorId.name}`}
+                      rightIconButton={this.props.loggedInId === comment.commentorId._id &&
+                        <RaisedButton
+                          label="Delete"
+                          onClick={
+                            () => {
+                              this.props.deleteComment(comment._id, tile._id)
+                            }
+                          }
+                        />
+                      }
+                    />
                   ))}
-                </ul>
+                </List>
                 <CardActions>
                   <TextField
                     name="text"

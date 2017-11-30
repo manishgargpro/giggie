@@ -58,8 +58,12 @@ export default {
     return axios.put("/api/comments/" + id, req);
   },
 
-  deleteComment: function(id) {
-    return axios.delete("/api/comments/" + id);
+  deleteComment: function(req) {
+    return axios({
+      method: "DELETE",
+      url: "/api/comments",
+      data: req
+    });
   }
 
 };

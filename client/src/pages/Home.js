@@ -204,6 +204,24 @@ class Home extends Component {
     }
   }
 
+  handleDeleteComment = (id, gigId) => {
+    console.log(id)
+    API.deleteComment({
+      id: id,
+      gigId: gigId,
+    })
+      .then(res => {
+        this.setState({
+          mongoUserObject: res.data
+        });
+        this.getGigs();
+        console.log(this.state)
+      })
+      .catch(err => {
+        console.log(err)
+      });
+  }
+
   render() {
     return (
       <div>
@@ -260,6 +278,7 @@ class Home extends Component {
                   deleteFunction={this.handleDeleteGig}
                   acceptFunction={this.handleAcceptGig}
                   leaveComment={this.handleCommentSubmit}
+                  deleteComment={this.handleDeleteComment}
                 />
               </Tab>
               <Tab label="All Gigs" >
@@ -271,6 +290,7 @@ class Home extends Component {
                   deleteFunction={this.handleDeleteGig}
                   acceptFunction={this.handleAcceptGig}
                   leaveComment={this.handleCommentSubmit}
+                  deleteComment={this.handleDeleteComment}
                 />
               </Tab>
             </Tabs>
