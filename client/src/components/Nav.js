@@ -7,6 +7,7 @@ export default class Nav extends Component {
       <AppBar
         title="Gigs"
         iconElementRight={this.props.iconElementRight}
+        iconElementLeft={<div/>}
       />
     );
   }

@@ -6,6 +6,7 @@ import API from '../utils/API'
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton';
 import { Tabs, Tab } from 'material-ui/Tabs';
+import Snackbar from 'material-ui/Snackbar';
 import withAuth from "../components/HOC/withAuth";
 
 
@@ -21,7 +22,15 @@ class Home extends Component {
         })
         this.getGigs();
         console.log(this.state)
-      })
+      }).catch(err => {
+        console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
+      });
     } else {
       console.log(this.state)
     }
@@ -35,7 +44,8 @@ class Home extends Component {
     allGigs: [],
     title: "",
     description: "",
-    open: false
+    dialogOpen: false,
+    snackbarOpen: false
   }
 
   getGigs = () => {
@@ -65,7 +75,10 @@ class Home extends Component {
           console.log(user);
         })
         .catch(err => {
-          this.setState({ error: err });
+          this.setState({
+            error: err,
+            snackbarOpen: true
+          });
           console.log(this.state.error)
         });
     }
@@ -86,7 +99,10 @@ class Home extends Component {
         }
       })
       .catch(err => {
-        this.setState({ error: err });
+        this.setState({
+          error: err,
+          snackbarOpen: true
+        });
         console.log(this.state.error)
       });
   }
@@ -99,14 +115,15 @@ class Home extends Component {
   }
 
   handleOpen = () => {
-    this.setState({ open: true });
+    this.setState({ dialogOpen: true });
   };
 
   handleClose = () => {
     this.setState({
-      open: false,
+      dialogOpen: false,
       title: "",
-      description: ""
+      description: "",
+      snackbarOpen: false
     });
   };
 
@@ -130,12 +147,19 @@ class Home extends Component {
       })
       .catch(err => {
         console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
       });
     } else {
       this.setState({
         error: {
           message: "One or more fields is blank, please try again."
-        }
+        },
+        snackbarOpen: true
       })
     }
   }
@@ -156,6 +180,12 @@ class Home extends Component {
       })
       .catch(err => {
         console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
       });
   }
 
@@ -174,6 +204,12 @@ class Home extends Component {
       })
       .catch(err => {
         console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
       });
   }
 
@@ -194,12 +230,19 @@ class Home extends Component {
       })
       .catch(err => {
         console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
       });
     } else {
       this.setState({
         error: {
           message: "One or more fields is blank, please try again."
-        }
+        },
+        snackbarOpen: true
       })
     }
   }
@@ -219,6 +262,12 @@ class Home extends Component {
       })
       .catch(err => {
         console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
       });
   }
 
@@ -300,8 +349,15 @@ class Home extends Component {
               handleInputChange={this.handleInputChange}
               title={this.state.title}
               description={this.state.description}
-              open={this.state.open}
-              message={this.state.error.message}
+              open={this.state.dialogOpen}
+            />
+            <Snackbar
+              open={this.state.snackbarOpen}
+              message={this.state.error.message ?
+                this.state.error.message :
+                ""
+              }
+              autoHideDuration={2500}
             />
           </div>
         }
