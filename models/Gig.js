@@ -32,6 +32,13 @@ const GigSchema = new Schema({
   }]
 });
 
+GigSchema.statics.removeGigAndComments = function(id) {
+  return this
+  .findOneAndRemove({ _id: id })
+  .then(dbGig => Promise.all(dbGig.comments.map(commentId => this.model("Comment").remove({_id: commentId}))))
+}
+
+
 const Gig = mongoose.model("Gig", GigSchema);
 
 module.exports = Gig;

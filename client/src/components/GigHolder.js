@@ -15,10 +15,22 @@ export default class GigHolder extends Component {
           id={tile._id}
         >
           <CardHeader
-            title={tile.title}
-            subtitle={this.props.loggedInId === tile.authorId._id ?
-                "Posted by You" :
-                `Posted by ${tile.authorId.name}`
+            title={<h3>{tile.title}</h3>}
+            subtitle={
+              <div>
+                <span>
+                  {this.props.loggedInId === tile.authorId._id ?
+                  "Posted by You" :
+                  `Posted by ${tile.authorId.name}`}
+                </span>
+                <br/>
+                <span>
+                  {this.props.loggedInId === tile.authorId._id &&
+                    tile.workerId &&
+                      `Accepted By ${tile.workerId.name}`
+                  }
+                </span>
+              </div>
             }
             actAsExpander={true}
             showExpandableButton={true}
@@ -37,8 +49,11 @@ export default class GigHolder extends Component {
                     <ListItem
                       key={comment._id}
                       primaryText={comment.text}
-                      secondaryText={`Author: ${comment.commentorId.name}`}
-                      rightIconButton={this.props.loggedInId === comment.commentorId._id &&
+                      secondaryText={`Author: ${this.props.loggedInId === comment.commentorId._id ?
+                        "You" :
+                        comment.commentorId.name
+                      }`}
+                      rightIconButton={this.props.loggedInId === comment.commentorId._id ?
                         <RaisedButton
                           label="Delete"
                           onClick={
@@ -46,7 +61,7 @@ export default class GigHolder extends Component {
                               this.props.deleteComment(comment._id, tile._id)
                             }
                           }
-                        />
+                        /> : null
                       }
                     />
                   ))}
@@ -85,7 +100,7 @@ export default class GigHolder extends Component {
               onClick={!tile.workerId ? (
                 this.props.loggedInId === tile.authorId._id ?
                   () => {
-                    this.props.deleteFunction(tile._id, tile.workerId)
+                    this.props.deleteFunction(tile._id, null)
                   } :
                   () => {
                     this.props.acceptFunction(tile._id, true)
