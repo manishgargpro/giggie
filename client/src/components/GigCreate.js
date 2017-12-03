@@ -8,7 +8,7 @@ export default class GigCreate extends Component {
   render() {
     const actions = [
       <RaisedButton
-        label="Submit"
+        label={this.props.label}
         onClick={this.props.handleGigSubmit}
       />,
       <RaisedButton

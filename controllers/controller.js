@@ -103,43 +103,54 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     update: function (req, res) {
+      let command = {};
       if (req.body.accept) {
-        db.Gig
-        .update({
-          _id: req.body.id
-        }, {
-          $set: {workerId: req.body.workerId}
-        })
-        .then(dbGig => {
-          return db.User.findOneAndUpdate(
-            { _id: req.body.workerId },
-            { $push: { gigs: req.body.id } },
-            { new: true }
-          )
-          .populate(populateObject);
-        })
-        .then(dbUser => {
-          res.json(dbUser)
-        })
-        .catch(err => res.status(422).json(err));
+        command = {
+          set: { $set: {workerId: req.body.workerId} },
+          find: dbGig => {
+            return db.User.findOneAndUpdate(
+              { _id: req.body.workerId },
+              { $push: { gigs: req.body.id } },
+              { new: true }
+            )
+          }
+        }
       } else {
-        db.Gig
-        .update({
-          _id: req.body.id
-        }, {
-          $set: {workerId: undefined}
-        })
-        .then(dbGig => {
-          return db.User.findOneAndUpdate(
-            { _id: req.body.workerId },
-            { $pull: { gigs: req.body.id } },
-            { new: true }
-          )
-          .populate(populateObject);
-        })
-        .then(dbUser => res.json(dbUser))
-        .catch(err => res.status(422).json(err));
+        if (req.body.title) {
+          command = {
+            set: {
+              $set: {
+                title: req.body.title,
+                description: req.body.description
+              }
+            },
+            find: dbGig => {
+              return db.User.findOne({ firebaseId: req.user.id })
+            }
+          }
+        } else {
+          command = {
+            set: { $set: {workerId: undefined} },
+            find: dbGig => {
+              return db.User.findOneAndUpdate(
+                { _id: req.body.workerId },
+                { $pull: { gigs: req.body.id } },
+                { new: true }
+              )
+            }
+          }
+        }
       }
+      db.Gig
+      .update({
+        _id: req.body.id
+      }, command.set)
+      .then(dbGig => {
+        return command.find(dbGig)
+        .populate(populateObject);
+      })
+      .then(dbUser => res.json(dbUser))
+      .catch(err => res.status(422).json(err));
     },
     remove: function (req, res) {
       db.Gig

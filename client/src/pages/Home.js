@@ -45,7 +45,9 @@ class Home extends Component {
     title: "",
     description: "",
     dialogOpen: false,
-    snackbarOpen: false
+    snackbarOpen: false,
+    editMode: false,
+    edigGigId: null
   }
 
   getGigs = () => {
@@ -114,8 +116,14 @@ class Home extends Component {
     });
   }
 
-  handleOpen = () => {
-    this.setState({ dialogOpen: true });
+  handleOpen = (id, title, description, editMode) => {
+    this.setState({
+      dialogOpen: true,
+      edigGigId: id,
+      title: title,
+      description: description,
+      editMode: editMode
+    });
   };
 
   handleClose = () => {
@@ -138,8 +146,6 @@ class Home extends Component {
         console.log(res.data)
         this.setState({
           mongoUserObject: res.data,
-          title: "",
-          description: ""
         })
         this.getGigs();
         this.handleClose();
@@ -213,6 +219,39 @@ class Home extends Component {
       });
   }
 
+  handleEditGig = () => {
+    if (this.state.title !== "" && this.state.description !== "") {
+      API.updateGig({
+        id: this.state.edigGigId,
+        title: this.state.title,
+        description: this.state.description
+      }).then(res => {
+        this.setState({
+          mongoUserObject: res.data
+        });
+        this.getGigs();
+        this.handleClose();
+        console.log(this.state)
+      })
+      .catch(err => {
+        console.log(err)
+        this.setState({
+          error: {
+            message: "Sorry, something went wrong on our end."
+          },
+          snackbarOpen: true
+        })
+      });
+    } else {
+      this.setState({
+        error: {
+          message: "One or more fields is blank, please try again."
+        },
+        snackbarOpen: true
+      })
+    }
+  }
+
   handleCommentSubmit = id => {
     if (this.state.text !== "") {
       API.createComment({
@@ -277,7 +316,7 @@ class Home extends Component {
         <Nav
           iconElementRight={this.props.currentUser ?
             <div>
-              <RaisedButton label="Create a Gig" onClick={this.handleOpen} />
+              <RaisedButton label="Create a Gig" onClick={() => this.handleOpen(null, "", "", false)} />
               <RaisedButton
                 label="Sign Out"
                 onClick={this.handleSignIn}
@@ -326,6 +365,7 @@ class Home extends Component {
                   handleInputChange={this.handleInputChange}
                   deleteFunction={this.handleDeleteGig}
                   acceptFunction={this.handleAcceptGig}
+                  editOpen={this.handleOpen}
                   leaveComment={this.handleCommentSubmit}
                   deleteComment={this.handleDeleteComment}
                 />
@@ -338,13 +378,21 @@ class Home extends Component {
                   handleInputChange={this.handleInputChange}
                   deleteFunction={this.handleDeleteGig}
                   acceptFunction={this.handleAcceptGig}
+                  editOpen={this.handleOpen}
                   leaveComment={this.handleCommentSubmit}
                   deleteComment={this.handleDeleteComment}
                 />
               </Tab>
             </Tabs>
             <GigCreate
-              handleGigSubmit={this.handleGigSubmit}
+              label={this.state.editMode ? 
+                "Edit" :
+                "Create"
+              }
+              handleGigSubmit={this.state.editMode ? 
+                this.handleEditGig :
+                this.handleGigSubmit
+              }
               handleClose={this.handleClose}
               handleInputChange={this.handleInputChange}
               title={this.state.title}

@@ -116,6 +116,13 @@ export default class GigHolder extends Component {
               )
               }
             />
+            {this.props.loggedInId === tile.authorId._id && 
+              <RaisedButton
+                label="Edit"
+                onClick={() => this.props.editOpen(tile._id, tile.title, tile.description, true)}
+                id={tile._id}
+              />
+            }
           </CardActions>
         </Card>
       ))
