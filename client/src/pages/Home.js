@@ -3,8 +3,6 @@ import Nav from '../components/Nav'
 import GigCreate from '../components/GigCreate'
 import GigHolder from '../components/GigHolder'
 import API from '../utils/API'
-import TextField from 'material-ui/TextField'
-import RaisedButton from 'material-ui/RaisedButton';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import Snackbar from 'material-ui/Snackbar';
 import withAuth from "../components/HOC/withAuth";
@@ -45,6 +43,7 @@ class Home extends Component {
     title: "",
     description: "",
     dialogOpen: false,
+    menuOpen: false,
     snackbarOpen: false,
     editMode: false,
     edigGigId: null
@@ -70,11 +69,17 @@ class Home extends Component {
             password: "",
             mongoUserObject: null
           })
+          this.handleClose()
         });
     } else {
       this.props.signInWithEmailAndPassword(this.state.email, this.state.password)
         .then(user => {
           console.log(user);
+          this.setState({
+            email: "",
+            password: ""
+          })
+          this.handleClose()
         })
         .catch(err => {
           this.setState({
@@ -97,6 +102,11 @@ class Home extends Component {
             name: user.email
           }).then(res => {
             console.log(res.data)
+            this.setState({
+              email: "",
+              password: "",
+            })
+            this.handleClose()
           });
         }
       })
@@ -116,9 +126,10 @@ class Home extends Component {
     });
   }
 
-  handleOpen = (id, title, description, editMode) => {
+  handleOpen = (dialogOpen, menuOpen, id, title, description, editMode) => {
     this.setState({
-      dialogOpen: true,
+      dialogOpen: dialogOpen,
+      menuOpen: menuOpen,
       edigGigId: id,
       title: title,
       description: description,
@@ -129,6 +140,7 @@ class Home extends Component {
   handleClose = () => {
     this.setState({
       dialogOpen: false,
+      menuOpen: false,
       title: "",
       description: "",
       snackbarOpen: false
@@ -314,40 +326,14 @@ class Home extends Component {
     return (
       <div>
         <Nav
-          iconElementRight={this.props.currentUser ?
-            <div>
-              <RaisedButton label="Create a Gig" onClick={() => this.handleOpen(null, "", "", false)} />
-              <RaisedButton
-                label="Sign Out"
-                onClick={this.handleSignIn}
-              />
-            </div>
-            :
-            <div>
-              <TextField
-                name="email"
-                type="text"
-                hintText="Your Email"
-                value={this.state.email}
-                onChange={this.handleInputChange}
-              />
-              <TextField
-                name="password"
-                type="password"
-                hintText="Your Password"
-                value={this.state.password}
-                onChange={this.handleInputChange}
-              />
-              <RaisedButton
-                label="Sign In"
-                onClick={this.handleSignIn}
-              />
-              <RaisedButton
-                label="Create Account"
-                onClick={this.handleCreateAccount}
-              />
-            </div>
-          }
+          handleOpen={this.handleOpen}
+          handleSignIn={this.handleSignIn}
+          handleCreateAccount={this.handleCreateAccount}
+          email={this.state.email}
+          password={this.state.password}
+          handleInputChange={this.handleInputChange}
+          currentUser={this.props.currentUser}
+          menuOpen={this.state.menuOpen}
         />
         <h1>{this.state.mongoUserObject ?
           `Welcome, ${this.state.mongoUserObject.name}!`
