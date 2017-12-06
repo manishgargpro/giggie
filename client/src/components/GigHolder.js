@@ -18,21 +18,18 @@ export default class GigHolder extends Component {
             title={<h3>{tile.title}</h3>}
             subtitle={
               <div>
-                <span>
-                  {this.props.loggedInId === tile.authorId._id ?
-                  "Posted by You" :
-                  `Posted by ${tile.authorId.name}`}
-                </span>
+                {this.props.loggedInId === tile.authorId._id ?
+                  <span>Posted by You</span> :
+                  <span>Posted by <a href={`/profile/${tile.authorId._id}`}>{tile.authorId.name}</a></span>
+                }
                 <br/>
-                <span>
-                  {this.props.loggedInId === tile.authorId._id &&
-                    tile.workerId &&
-                      `Accepted By ${tile.workerId.name}`
-                  }
-                </span>
+                {tile.workerId &&
+                  this.props.loggedInId !== tile.workerId._id &&
+                    <span>Accepted By <a href={`/profile/${tile.workerId._id}`}>{tile.workerId.name}</a></span>
+                }
               </div>
             }
-            actAsExpander={true}
+            actAsExpander={false}
             showExpandableButton={true}
           />
           <CardText expandable={true}>
@@ -49,10 +46,10 @@ export default class GigHolder extends Component {
                     <ListItem
                       key={comment._id}
                       primaryText={comment.text}
-                      secondaryText={`Author: ${this.props.loggedInId === comment.commentorId._id ?
-                        "You" :
-                        comment.commentorId.name
-                      }`}
+                      secondaryText={this.props.loggedInId === comment.commentorId._id ?
+                        <span>Author: You</span> :
+                        <span>Author: <a href={`/profile/${comment.commentorId._id}`}>{comment.commentorId.name}</a></span>
+                      }
                       rightIconButton={this.props.loggedInId === comment.commentorId._id ?
                         <RaisedButton
                           label="Delete"
@@ -86,35 +83,37 @@ export default class GigHolder extends Component {
             </Card>
           </CardText>
           <CardActions>
-            <RaisedButton
-              label={!tile.workerId ? (
-                this.props.loggedInId === tile.authorId._id ?
-                  "Delete" :
-                  "Accept"
-              ) : (
-                this.props.loggedInId === tile.authorId._id ?
-                  "Delete" :
-                  "Cancel"
-              )
-              }
-              onClick={!tile.workerId ? (
-                this.props.loggedInId === tile.authorId._id ?
-                  () => {
+            {!tile.workerId ? (
+              this.props.loggedInId === tile.authorId._id ?
+                <RaisedButton
+                  label="Delete"
+                  onClick={() => {
                     this.props.deleteFunction(tile._id, null)
-                  } :
-                  () => {
+                  }}
+                /> :
+                <RaisedButton
+                  label="Accept"
+                  onClick={() => {
                     this.props.acceptFunction(tile._id, true)
-                  }
-              ) : (
-                this.props.loggedInId === tile.authorId._id ?
-                  () => {
-                    this.props.deleteFunction(tile._id, tile.workerId)
-                  } :
-                  () => {
-                    this.props.acceptFunction(tile._id, false)
-                  }
-              )
-              }
+                  }}
+                />
+            ) : (
+              this.props.loggedInId === tile.authorId._id ?
+                <RaisedButton
+                  label="Delete"
+                  onClick={() => {
+                    this.props.deleteFunction(tile._id, null)
+                  }}
+                /> :
+                this.props.loggedInId === tile.workerId._id ?
+                  <RaisedButton
+                    label="Cancel"
+                    onClick={() => {
+                      this.props.acceptFunction(tile._id, false)
+                    }}
+                  /> :
+                  null
+            )}
             />
             {this.props.loggedInId === tile.authorId._id && 
               <RaisedButton

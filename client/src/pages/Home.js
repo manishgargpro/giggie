@@ -13,24 +13,25 @@ class Home extends Component {
   componentWillReceiveProps(nextProps) {
     console.log(nextProps)
     if (nextProps.currentUser) {
-      API.getUser(nextProps.currentUser.uid).then(res => {
-        console.log(res.data)
-        this.setState({
-          mongoUserObject: res.data
-        })
-        this.getGigs();
-        console.log(this.state)
-      }).catch(err => {
-        console.log(err)
-        this.setState({
-          error: {
-            message: "Sorry, something went wrong on our end."
-          },
-          snackbarOpen: true
-        })
-      });
-    } else {
+      console.log(nextProps.currentUser.uid)
+      this.getUser({
+        firebaseId: nextProps.currentUser.uid
+      }, "mongoUserObject")
+    }
+    else {
       console.log(this.state)
+    }
+  }
+
+  componentDidMount () {
+    if (this.props.match.params.id) {
+      this.getUser({
+        _id: this.props.match.params.id
+      }, "profileObject")
+    } else {
+      this.setState({
+        profileObject: null
+      })
     }
   }
 
@@ -39,6 +40,7 @@ class Home extends Component {
     password: "",
     error: {},
     mongoUserObject: null,
+    profileObject: null,
     allGigs: [],
     title: "",
     description: "",
@@ -49,12 +51,31 @@ class Home extends Component {
     edigGigId: null
   }
 
+  getUser = (req, prop) => {
+    API.getUser(req).then(res => {
+      console.log(res.data)
+      this.setState({
+        [prop]: res.data
+      })
+      this.getGigs();
+      console.log(this.state)
+    }).catch(err => {
+      console.log(err)
+      this.setState({
+        error: {
+          message: "Sorry, something went wrong on our end."
+        },
+        snackbarOpen: true
+      })
+    });
+  }
+
   getGigs = () => {
     API.getAllGigs().then(res => {
       this.setState({
         allGigs: res.data
       });
-      console.log(this.state);
+      console.log(this.state.allGigs);
     })
   }
 
@@ -187,12 +208,19 @@ class Home extends Component {
     API.deleteGig({
       id: id,
       authorId: this.state.mongoUserObject._id,
-      workerId: workerId
+      workerId: workerId,
+      profileId: this.state.profileObject ? this.state.profileObject._id : this.state.mongoUserObject._id
     })
       .then(res => {
-        this.setState({
-          mongoUserObject: res.data
-        });
+        if (res.data.firebaseId === this.props.currentUser.uid) {
+          this.setState({
+            mongoUserObject: res.data
+          });
+        } else {
+          this.setState({
+            profileObject: res.data
+          });
+        }
         this.getGigs();
         console.log(this.state)
       })
@@ -211,12 +239,19 @@ class Home extends Component {
     API.updateGig({
       id: id,
       workerId: this.state.mongoUserObject._id,
-      accept: accept
+      accept: accept,
+      profileId: this.state.profileObject ? this.state.profileObject._id : this.state.mongoUserObject._id
     })
       .then(res => {
-        this.setState({
-          mongoUserObject: res.data
-        });
+        if (res.data.firebaseId === this.props.currentUser.uid) {
+          this.setState({
+            mongoUserObject: res.data
+          });
+        } else {
+          this.setState({
+            profileObject: res.data
+          });
+        }
         this.getGigs();
         console.log(this.state)
       })
@@ -236,11 +271,18 @@ class Home extends Component {
       API.updateGig({
         id: this.state.edigGigId,
         title: this.state.title,
-        description: this.state.description
+        description: this.state.description,
+        profileId: this.state.profileObject ? this.state.profileObject._id : this.state.mongoUserObject._id
       }).then(res => {
-        this.setState({
-          mongoUserObject: res.data
-        });
+        if (res.data.firebaseId === this.props.currentUser.uid) {
+          this.setState({
+            mongoUserObject: res.data
+          });
+        } else {
+          this.setState({
+            profileObject: res.data
+          });
+        }
         this.getGigs();
         this.handleClose();
         console.log(this.state)
@@ -264,18 +306,25 @@ class Home extends Component {
     }
   }
 
-  handleCommentSubmit = id => {
+  handleCommentSubmit = (id) => {
     if (this.state.text !== "") {
       API.createComment({
         text: this.state.text,
         commentorId: this.state.mongoUserObject._id,
-        gigId: id
+        gigId: id,
+        profileId: this.state.profileObject ? this.state.profileObject._id : this.state.mongoUserObject._id
       }).then(res => {
-        console.log(res.data)
-        this.setState({
-          mongoUserObject: res.data,
-          text: ""
-        });
+        if (res.data.firebaseId === this.props.currentUser.uid) {
+          this.setState({
+            mongoUserObject: res.data,
+            text: ""
+          });
+        } else {
+          this.setState({
+            profileObject: res.data,
+            text: ""
+          });
+        }
         this.getGigs();
         console.log(this.state)
       })
@@ -303,11 +352,18 @@ class Home extends Component {
     API.deleteComment({
       id: id,
       gigId: gigId,
+      profileId: this.state.profileObject ? this.state.profileObject._id : this.state.mongoUserObject._id
     })
       .then(res => {
-        this.setState({
-          mongoUserObject: res.data
-        });
+        if (res.data.firebaseId === this.props.currentUser.uid) {
+          this.setState({
+            mongoUserObject: res.data
+          });
+        } else {
+          this.setState({
+            profileObject: res.data
+          });
+        }
         this.getGigs();
         console.log(this.state)
       })
@@ -336,16 +392,25 @@ class Home extends Component {
           menuOpen={this.state.menuOpen}
         />
         <h1>{this.state.mongoUserObject ?
-          `Welcome, ${this.state.mongoUserObject.name}!`
+          (this.state.profileObject ?
+            `${this.state.profileObject.name}'s Profile` :
+            `Welcome, ${this.state.mongoUserObject.name}!`
+          )
           :
           "Welcome! Please log in or create an account to get started!"}
         </h1>
         {this.state.mongoUserObject &&
           <div>
             <Tabs>
-              <Tab label="Your Gigs" >
+              <Tab label={this.state.profileObject ?
+                    "Their Gigs" :
+                    "Your Gigs"
+                  } >
                 <GigHolder
-                  gigs={this.state.mongoUserObject.gigs}
+                  gigs={this.state.profileObject ?
+                    this.state.profileObject.gigs :
+                    this.state.mongoUserObject.gigs
+                  }
                   loggedInId={this.state.mongoUserObject._id}
                   text={this.state.text}
                   handleInputChange={this.handleInputChange}
@@ -356,7 +421,7 @@ class Home extends Component {
                   deleteComment={this.handleDeleteComment}
                 />
               </Tab>
-              <Tab label="All Gigs" >
+              <Tab label="Gig Marketplace" >
                 <GigHolder
                   gigs={this.state.allGigs}
                   loggedInId={this.state.mongoUserObject._id}

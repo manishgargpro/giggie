@@ -33,6 +33,11 @@ export default class Nav extends Component {
         >
           {this.props.currentUser ?
             <div>
+              <MenuItem primaryText="Home" onClick={
+                () => {
+                  window.location = "/"
+                }
+              } />
               <MenuItem primaryText="Create a Gig" onClick={
                 () => {
                   this.props.handleOpen(true, true, null, "", "", false)

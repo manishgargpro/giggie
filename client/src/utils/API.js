@@ -2,8 +2,10 @@ import axios from "axios";
 
 export default {
 
-  getUser: function(id) {
-    return axios.get("/api/users/" + id);
+  getUser: function(req) {
+    return axios.get("/api/users", {
+      params: req
+    });
   },
 
   createUser: function(req) {

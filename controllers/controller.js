@@ -32,7 +32,7 @@ module.exports = {
   users: {
     findOne: function (req, res) {
       db.User
-        .findOne({ firebaseId: req.params.id })
+        .findOne(req.query)
         .populate(populateObject)
         .then(dbUser => res.json(dbUser))
         .catch(err => res.status(422).json(err));
@@ -113,6 +113,9 @@ module.exports = {
               { $push: { gigs: req.body.id } },
               { new: true }
             )
+            .then(dbUser => {
+              return db.User.findOne({ _id: req.body.profileId }).populate(populateObject)
+            })
           }
         }
       } else {
@@ -125,7 +128,7 @@ module.exports = {
               }
             },
             find: dbGig => {
-              return db.User.findOne({ firebaseId: req.user.id })
+              return db.User.findOne({ _id: req.body.profileId }).populate(populateObject)
             }
           }
         } else {
@@ -137,17 +140,19 @@ module.exports = {
                 { $pull: { gigs: req.body.id } },
                 { new: true }
               )
+              .then(dbUser => {
+                return db.User.findOne({ _id: req.body.profileId }).populate(populateObject)
+              })
             }
           }
         }
       }
       db.Gig
-      .update({
+      .findOneAndUpdate({
         _id: req.body.id
       }, command.set)
       .then(dbGig => {
-        return command.find(dbGig)
-        .populate(populateObject);
+        return command.find(dbGig);
       })
       .then(dbUser => res.json(dbUser))
       .catch(err => res.status(422).json(err));
@@ -167,7 +172,10 @@ module.exports = {
               { $pull: { gigs: req.body.id } },
               { new: true }
             )
-            .populate(populateObject);
+            .then(dbUser => {
+              return db.User.findOne({ _id: req.body.profileId })
+                .populate(populateObject);
+            })
           })          
         })
         .then(dbUser => res.json(dbUser))
@@ -198,7 +206,7 @@ module.exports = {
           )
           .then(dbGig =>{
             return db.User
-            .findOne({ firebaseId: req.user.id })
+            .findOne({ _id: req.body.profileId })
             .populate(populateObject)
           });
         })
@@ -222,7 +230,7 @@ module.exports = {
           )
           .then(dbGig =>{
             return db.User
-            .findOne({ firebaseId: req.user.id })
+            .findOne({ _id: req.body.profileId })
             .populate(populateObject)
           })
         })

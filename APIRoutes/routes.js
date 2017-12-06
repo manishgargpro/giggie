@@ -3,10 +3,10 @@ const controller = require("../controllers/controller.js");
 const isAuthenticated = require("../config/middleware/isAuthenticated");
 
 router.route("/users")
-  .post(controller.users.create);
+  .post(controller.users.create)
+  .get(isAuthenticated, controller.users.findOne);
 
 router.route("/users/:id")
-  .get(isAuthenticated, controller.users.findOne)
   .put(isAuthenticated, controller.users.update)
   .delete(isAuthenticated, controller.users.remove);
 
