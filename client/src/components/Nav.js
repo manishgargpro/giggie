@@ -70,6 +70,7 @@ export default class Nav extends Component {
                 underlineShow={false}
                 value={this.props.password}
                 onChange={this.props.handleInputChange}
+                errorText={this.props.error.message}
               />
               <br/>
               <MenuItem

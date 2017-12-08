@@ -37,6 +37,9 @@ export default class GigHolder extends Component {
             <Card>
               <CardHeader
                 title="Comments"
+                subtitle={tile.comments.length === 0 &&
+                  "There are no comments on this gig."
+                }
                 actAsExpander={true}
                 showExpandableButton={true}
               />

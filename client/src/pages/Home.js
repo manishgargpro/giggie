@@ -10,16 +10,13 @@ import withAuth from "../components/HOC/withAuth";
 
 class Home extends Component {
 
-  componentWillReceiveProps(nextProps) {
-    console.log(nextProps)
-    if (nextProps.currentUser) {
-      console.log(nextProps.currentUser.uid)
+  componentWillReceiveProps(nextProps) {    
+    if (nextProps.currentUser) {      
       this.getUser({
         firebaseId: nextProps.currentUser.uid
       }, "mongoUserObject")
     }
-    else {
-      console.log(this.state)
+    else {      
     }
   }
 
@@ -44,6 +41,7 @@ class Home extends Component {
     allGigs: [],
     title: "",
     description: "",
+    text: "",
     dialogOpen: false,
     menuOpen: false,
     snackbarOpen: false,
@@ -52,15 +50,12 @@ class Home extends Component {
   }
 
   getUser = (req, prop) => {
-    API.getUser(req).then(res => {
-      console.log(res.data)
+    API.getUser(req).then(res => {      
       this.setState({
         [prop]: res.data
       })
-      this.getGigs();
-      console.log(this.state)
-    }).catch(err => {
-      console.log(err)
+      this.getGigs();      
+    }).catch(err => {      
       this.setState({
         error: {
           message: "Sorry, something went wrong on our end."
@@ -74,8 +69,7 @@ class Home extends Component {
     API.getAllGigs().then(res => {
       this.setState({
         allGigs: res.data
-      });
-      console.log(this.state.allGigs);
+      });      
     })
   }
 
@@ -83,8 +77,7 @@ class Home extends Component {
     event.preventDefault();
     if (this.props.currentUser) {
       this.props.signOut()
-        .then(user => {
-          console.log(user);
+        .then(user => {          
           this.setState({
             email: "",
             password: "",
@@ -94,20 +87,18 @@ class Home extends Component {
         });
     } else {
       this.props.signInWithEmailAndPassword(this.state.email, this.state.password)
-        .then(user => {
-          console.log(user);
+        .then(user => {          
           this.setState({
             email: "",
             password: ""
           })
           this.handleClose()
         })
-        .catch(err => {
+        .catch(err => {          
           this.setState({
             error: err,
             snackbarOpen: true
-          });
-          console.log(this.state.error)
+          });          
         });
     }
 
@@ -121,8 +112,7 @@ class Home extends Component {
           API.createUser({
             firebaseId: user.uid,
             name: user.email
-          }).then(res => {
-            console.log(res.data)
+          }).then(res => {            
             this.setState({
               email: "",
               password: "",
@@ -135,15 +125,15 @@ class Home extends Component {
         this.setState({
           error: err,
           snackbarOpen: true
-        });
-        console.log(this.state.error)
+        });        
       });
   }
 
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({
-      [name]: value
+      [name]: value,
+      snackbarOpen: false
     });
   }
 
@@ -154,7 +144,8 @@ class Home extends Component {
       edigGigId: id,
       title: title,
       description: description,
-      editMode: editMode
+      editMode: editMode,
+      snackbarOpen: false
     });
   };
 
@@ -176,16 +167,17 @@ class Home extends Component {
         description: this.state.description,
         authorId: this.state.mongoUserObject._id
       }).then(res => {
-        console.log(res.data)
-        this.setState({
-          mongoUserObject: res.data,
-        })
-        this.getGigs();
-        this.handleClose();
-        console.log(this.state)
+        if (this.state.profileObject) {
+          window.location = "/"
+        } else {
+          this.setState({
+            mongoUserObject: res.data,
+          })
+          this.getGigs();
+          this.handleClose();
+        }        
       })
-      .catch(err => {
-        console.log(err)
+      .catch(err => {        
         this.setState({
           error: {
             message: "Sorry, something went wrong on our end."
@@ -203,8 +195,7 @@ class Home extends Component {
     }
   }
 
-  handleDeleteGig = (id, workerId) => {
-    console.log(workerId)
+  handleDeleteGig = (id, workerId) => {    
     API.deleteGig({
       id: id,
       authorId: this.state.mongoUserObject._id,
@@ -221,11 +212,9 @@ class Home extends Component {
             profileObject: res.data
           });
         }
-        this.getGigs();
-        console.log(this.state)
+        this.getGigs();        
       })
-      .catch(err => {
-        console.log(err)
+      .catch(err => {        
         this.setState({
           error: {
             message: "Sorry, something went wrong on our end."
@@ -252,11 +241,9 @@ class Home extends Component {
             profileObject: res.data
           });
         }
-        this.getGigs();
-        console.log(this.state)
+        this.getGigs();        
       })
-      .catch(err => {
-        console.log(err)
+      .catch(err => {        
         this.setState({
           error: {
             message: "Sorry, something went wrong on our end."
@@ -284,11 +271,9 @@ class Home extends Component {
           });
         }
         this.getGigs();
-        this.handleClose();
-        console.log(this.state)
+        this.handleClose();        
       })
-      .catch(err => {
-        console.log(err)
+      .catch(err => {        
         this.setState({
           error: {
             message: "Sorry, something went wrong on our end."
@@ -326,10 +311,9 @@ class Home extends Component {
           });
         }
         this.getGigs();
-        console.log(this.state)
+        this.handleClose();        
       })
-      .catch(err => {
-        console.log(err)
+      .catch(err => {        
         this.setState({
           error: {
             message: "Sorry, something went wrong on our end."
@@ -347,35 +331,32 @@ class Home extends Component {
     }
   }
 
-  handleDeleteComment = (id, gigId) => {
-    console.log(id)
+  handleDeleteComment = (id, gigId) => {    
     API.deleteComment({
       id: id,
       gigId: gigId,
       profileId: this.state.profileObject ? this.state.profileObject._id : this.state.mongoUserObject._id
     })
-      .then(res => {
-        if (res.data.firebaseId === this.props.currentUser.uid) {
-          this.setState({
-            mongoUserObject: res.data
-          });
-        } else {
-          this.setState({
-            profileObject: res.data
-          });
-        }
-        this.getGigs();
-        console.log(this.state)
-      })
-      .catch(err => {
-        console.log(err)
+    .then(res => {
+      if (res.data.firebaseId === this.props.currentUser.uid) {
         this.setState({
-          error: {
-            message: "Sorry, something went wrong on our end."
-          },
-          snackbarOpen: true
-        })
-      });
+          mongoUserObject: res.data
+        });
+      } else {
+        this.setState({
+          profileObject: res.data
+        });
+      }
+      this.getGigs();      
+    })
+    .catch(err => {      
+      this.setState({
+        error: {
+          message: "Sorry, something went wrong on our end."
+        },
+        snackbarOpen: true
+      })
+    });
   }
 
   render() {
@@ -390,6 +371,7 @@ class Home extends Component {
           handleInputChange={this.handleInputChange}
           currentUser={this.props.currentUser}
           menuOpen={this.state.menuOpen}
+          error={this.state.error}
         />
         <h1>{this.state.mongoUserObject ?
           (this.state.profileObject ?
@@ -450,16 +432,16 @@ class Home extends Component {
               description={this.state.description}
               open={this.state.dialogOpen}
             />
-            <Snackbar
-              open={this.state.snackbarOpen}
-              message={this.state.error.message ?
-                this.state.error.message :
-                ""
-              }
-              autoHideDuration={2500}
-            />
           </div>
         }
+        <Snackbar
+          open={this.state.snackbarOpen}
+          message={this.state.error.message ?
+            this.state.error.message :
+            ""
+          }
+          autoHideDuration={2500}
+        />
       </div>
     );
   }
